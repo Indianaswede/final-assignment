@@ -17,6 +17,8 @@
 
 namespace kotte
 {
+    enum State {Playing, Win, Lose};
+    
     struct CollisionDiagnostics final {
         std::size_t enemy_updates = 0;
         std::size_t movement_attempts = 0;
@@ -158,5 +160,6 @@ namespace kotte
         std::uint64_t seed_;
         EntityHandle player_handle_;
         bool exit_requested_ = false;
+        State game_state_ = Playing;
     };
 }
