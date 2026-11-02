@@ -449,6 +449,7 @@ namespace kotte
 
             return;
         }
+
         const Rectangle world_view = camera_.world_view();
         const TileRange visible_tiles = map_.tiles_overlapping(world_view, tile_size_);
         std::size_t tiles_rendered = 0;

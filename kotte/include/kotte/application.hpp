@@ -160,6 +160,6 @@ namespace kotte
         std::uint64_t seed_;
         EntityHandle player_handle_;
         bool exit_requested_ = false;
-        State game_state_ = Win;
+        State game_state_ = Playing;
     };
 }
