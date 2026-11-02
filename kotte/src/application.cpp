@@ -233,7 +233,7 @@ namespace kotte
         // Detect possible contacts using the mover's proposed collision bounds.
         if(entity_movement_is_blocked(player_handle_, proposed_position)){
             // Respond by rejecting only this blocked player axis.
-            
+
             ++collision_diagnostics_.blocked_moves;
             return;
         }
@@ -387,10 +387,9 @@ namespace kotte
             case EntityKind::player:
                 if (!player_damaged_by_blast_)
                 {
-                    health_ -= 1;
+                    player_takes_damage();
                     player_damaged_by_blast_ = true;
                 }
-                
                 break;
             }
         }
@@ -713,6 +712,11 @@ namespace kotte
         return {top_left.x, top_left.y, size.x, size.y};
     }
 
+    void Application::player_takes_damage()
+    {
+        health_ -= 1;
+    }
+
     bool Application::entity_movement_is_blocked(
         EntityHandle moving_entity_handle,
         Vector2 proposed_position){
@@ -763,6 +767,11 @@ namespace kotte
             if(CheckCollisionRecs(proposed_collision_bounds, entity_collision_bounds(*candidate))){
                 ++collision_diagnostics_.contacts;
                 blocked = true;
+                if ((proposed_entity.kind == EntityKind::enemy && candidate->kind == EntityKind::player)
+                    || (proposed_entity.kind == EntityKind::player && candidate->kind == EntityKind::enemy))
+                {
+                    player_takes_damage();
+                }
             }
         }
 
