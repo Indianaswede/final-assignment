@@ -99,6 +99,7 @@ namespace kotte
         else
         {
             if (IsKeyDown(KEY_SPACE)) {
+                reset();
                 game_state_ = Playing;
             }
         }
@@ -870,11 +871,17 @@ namespace kotte
         destroy_entity_requests_.clear();
         bomb_detonated_facts_.clear();
         place_bomb_requests_.clear();
-        /*active_bomb_handles_.clear();
+        active_bomb_handles_.clear();
         enemy_handles_.clear();
         //destroy all entities
-        Rectangle all = {}
-        SpatialQuery contacts = spatial_grid_.query(tile_bounds);*/
+        Rectangle all = {0, 0, float(map_.width() * tile_size_), float(map_.height() * tile_size_)};
+        SpatialQuery all_entities = spatial_grid_.query(all);
+        for (EntityHandle handle : all_entities.entity_handles)
+        {
+            destroy_entity_requests_.push_back({ handle });
+        }
+        apply_entity_destructions();
+        destroy_entity_requests_.clear();
         populate_entities();
     }
 
