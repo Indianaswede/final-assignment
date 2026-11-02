@@ -862,4 +862,20 @@ namespace kotte
         exit_requested_ = true;
     }
 
+    void Application::reset() 
+    {
+        health_ = 5;
+        player_damaged_by_blast_ = false;
+        blast_effects_.clear();
+        destroy_entity_requests_.clear();
+        bomb_detonated_facts_.clear();
+        place_bomb_requests_.clear();
+        /*active_bomb_handles_.clear();
+        enemy_handles_.clear();
+        //destroy all entities
+        Rectangle all = {}
+        SpatialQuery contacts = spatial_grid_.query(tile_bounds);*/
+        populate_entities();
+    }
+
 } //kotte

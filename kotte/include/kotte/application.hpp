@@ -102,9 +102,10 @@ namespace kotte
             std::uint8_t range);
         void update_camera(float delta_time) noexcept;
         void render();
-        void populate_entities();
+        void populate_entities(); //use in reset
         void initialize_enemies();
         void player_takes_damage();
+        void reset();
         [[nodiscard]] Entity& entity(EntityHandle handle) noexcept;
         [[nodiscard]] const Entity& entity(EntityHandle handle) const noexcept;
         [[nodiscard]] Entity& player() noexcept;
@@ -144,25 +145,25 @@ namespace kotte
         static constexpr Color wall_color_{0x78, 0x5f, 0x47, 0xff};
 
         Window window_; // Constructed first, destroyed last.
-        Camera camera_;
+        Camera camera_; //reset, move to where player is
         Random random_;
         TileMap map_;
-        EntityStore entities_;
-        std::vector<EntityHandle> enemy_handles_;
-        std::vector<EntityHandle> active_bomb_handles_;
+        EntityStore entities_; //reset cleared and replenished
+        std::vector<EntityHandle> enemy_handles_; //reset cleared
+        std::vector<EntityHandle> active_bomb_handles_; //reset cleared
         SpatialGrid spatial_grid_;
         Renderer renderer_;
-        FrameActions frame_actions_;
-        std::vector<PlaceBombRequest> place_bomb_requests_;
-        std::vector<BombDetonated> bomb_detonated_facts_;
-        std::vector<DestroyEntityRequest> destroy_entity_requests_;
-        std::vector<BlastEffect> blast_effects_;
+        FrameActions frame_actions_; 
+        std::vector<PlaceBombRequest> place_bomb_requests_; //reset cleared
+        std::vector<BombDetonated> bomb_detonated_facts_; //reset cleared
+        std::vector<DestroyEntityRequest> destroy_entity_requests_; //reset cleared
+        std::vector<BlastEffect> blast_effects_; //reset cleared
         CollisionDiagnostics collision_diagnostics_;
         std::uint64_t seed_;
-        EntityHandle player_handle_;
+        EntityHandle player_handle_; // used in reset to reset position
         bool exit_requested_ = false;
         State game_state_ = Playing;
-        int health_ = 5;
-        bool player_damaged_by_blast_ = false;
+        int health_ = 5; //reset back to 5
+        bool player_damaged_by_blast_ = false; //reset back to false
     };
 }

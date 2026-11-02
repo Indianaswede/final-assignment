@@ -55,6 +55,7 @@ namespace kotte
         --live_count_;
         return true;
     }
+    
 
     Entity* EntityStore::try_get(EntityHandle handle) noexcept{
         if(handle.slot >= slots_.size()){
