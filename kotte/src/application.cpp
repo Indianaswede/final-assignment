@@ -47,6 +47,7 @@ namespace kotte
         //
         // Keeping one call site per phase makes event lifetime and mutation
         // boundaries visible as the simulation grows.
+        
         begin_frame();
         collect_frame_actions();
         update_gameplay(delta_time);
@@ -55,6 +56,8 @@ namespace kotte
         apply_structural_mutations();
         update_presentation(delta_time);
         render();
+        
+        
     }
 
     void Application::begin_frame() noexcept{
@@ -70,26 +73,36 @@ namespace kotte
         if(IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_Q)){
             request_exit();
         }
-        frame_actions_.place_bomb = IsKeyPressed(KEY_SPACE);
+        if (game_state_ == Playing)
+        {
+            frame_actions_.place_bomb = IsKeyPressed(KEY_SPACE);
 
-        Vector2& movement_direction = frame_actions_.player_movement_direction;
-        if(IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)){
-            movement_direction.x -= 1.0f;
-        }
-        if(IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)){
-            movement_direction.x += 1.0f;
-        }
-        if(IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)){
-            movement_direction.y -= 1.0f;
-        }
-        if(IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)){
-            movement_direction.y += 1.0f;
-        }
+            Vector2& movement_direction = frame_actions_.player_movement_direction;
+            if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+                movement_direction.x -= 1.0f;
+            }
+            if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
+                movement_direction.x += 1.0f;
+            }
+            if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) {
+                movement_direction.y -= 1.0f;
+            }
+            if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) {
+                movement_direction.y += 1.0f;
+            }
 
-        // Normalize intent before simulation so bindings cannot change movement speed.
-        if(movement_direction.x != 0.0f || movement_direction.y != 0.0f){
-            movement_direction = Vector2Normalize(movement_direction);
+            // Normalize intent before simulation so bindings cannot change movement speed.
+            if (movement_direction.x != 0.0f || movement_direction.y != 0.0f) {
+                movement_direction = Vector2Normalize(movement_direction);
+            }
         }
+        else
+        {
+            if (IsKeyDown(KEY_SPACE)) {
+                game_state_ = Playing;
+            }
+        }
+        
     }
 
     void Application::update_gameplay(float delta_time){
@@ -210,6 +223,7 @@ namespace kotte
         // Detect possible contacts using the mover's proposed collision bounds.
         if(entity_movement_is_blocked(player_handle_, proposed_position)){
             // Respond by rejecting only this blocked player axis.
+            
             ++collision_diagnostics_.blocked_moves;
             return;
         }
@@ -397,7 +411,44 @@ namespace kotte
 
     void Application::render(){
         Frame frame{background_color_};
+        if (game_state_ != Playing)
+        {
+            std::string result;
+            std::string diagnostic;
+            if (game_state_ == Win)
+            {
+                result = "You Win!";
+                diagnostic = "Current State: Win";
+            }
+            else if (game_state_ == Lose)
+            {
+                result = "You Lose!";
+                diagnostic = "Current State: Lose";
+            }
+            else
+            {
+                result = "You Broke Something!";
+                diagnostic = "Current State: Error";
+            }
 
+            Vector2 text_size_result = MeasureTextEx(GetFontDefault(), TextFormat(result.c_str()), 40, 5);
+            Vector2 text_size_play_again = MeasureTextEx(GetFontDefault(), TextFormat("To play again, press the space bar!"), 20, 2);
+            Vector2 text_size_quit = MeasureTextEx(GetFontDefault(), TextFormat("To quit, press the Q key or escape key!"), 20, 2);
+
+            DrawText(TextFormat(result.c_str()), 
+                (window_.width() / 2) - int(text_size_result.x / 2.0f), 
+                (window_.height() / 2) - int(text_size_result.y / 2.0f), 40, RAYWHITE);
+            DrawText(TextFormat("To play again, press the space bar!"), 
+                (window_.width() / 2) - int(text_size_play_again.x / 2.0f), 
+                (3 * (window_.height() / 4)) - int(text_size_play_again.y / 2.0f), 20, RAYWHITE);
+            DrawText(TextFormat("To quit, press the Q key or escape key!"),
+                (window_.width() / 2) - int(text_size_quit.x / 2.0f),
+                (3 * (window_.height() / 4)) + 26 - int(text_size_quit.y / 2.0f), 20, RAYWHITE);
+
+            DrawText(TextFormat(diagnostic.c_str()), 10, 10, 20, RAYWHITE);
+
+            return;
+        }
         const Rectangle world_view = camera_.world_view();
         const TileRange visible_tiles = map_.tiles_overlapping(world_view, tile_size_);
         std::size_t tiles_rendered = 0;
@@ -537,6 +588,8 @@ namespace kotte
             collision_diagnostics_.exact_tests,
             collision_diagnostics_.contacts);
         DrawText(diagnostics.c_str(), 10, 106, 20, RAYWHITE);
+
+        DrawText("current state: Playing", 10, 130, 20, RAYWHITE);
 
         diagnostics = std::format("seed: {}", seed_);
         DrawText(diagnostics.c_str(), 10, window_.height() - 78, 20, RAYWHITE);
