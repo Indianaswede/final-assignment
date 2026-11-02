@@ -161,5 +161,7 @@ namespace kotte
         EntityHandle player_handle_;
         bool exit_requested_ = false;
         State game_state_ = Playing;
+        int health_ = 5;
+        bool player_damaged_by_blast_ = false;
     };
 }

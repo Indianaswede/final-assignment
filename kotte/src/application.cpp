@@ -161,10 +161,16 @@ namespace kotte
             append_blast_ray(effect, origin_column, origin_row, 0, 1, fact.blast_range);
             append_blast_ray(effect, origin_column, origin_row, -1, 0, fact.blast_range);
 
+            if (player_damaged_by_blast_)
+            {
+                player_damaged_by_blast_ = false;
+            }
+
             blast_effects_.push_back(std::move(effect));
         }
 
         bomb_detonated_facts_.clear();
+
     }
 
     void Application::apply_structural_mutations(){
@@ -211,6 +217,10 @@ namespace kotte
 
         const Rectangle new_world_bounds = entity_world_bounds(player_entity);
         spatial_grid_.update(player_handle_, old_world_bounds, new_world_bounds);
+        if (health_ < 1)
+        {
+            game_state_ = Lose;
+        }
     }
 
     void Application::try_move_player(Vector2 axis_displacement){
@@ -375,7 +385,12 @@ namespace kotte
                 blocked_by_crate = true;
                 break;
             case EntityKind::player:
-                // Player-hit consequences are outside the Week 6 lifetime seam.
+                if (!player_damaged_by_blast_)
+                {
+                    health_ -= 1;
+                    player_damaged_by_blast_ = true;
+                }
+                
                 break;
             }
         }
