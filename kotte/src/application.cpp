@@ -556,6 +556,11 @@ namespace kotte
         renderer_.sort();
         renderer_.execute();
 
+        for (int i = 0; i < health_; i++)
+        {
+            DrawCircle(window_.width() - 20 - (30 * i), 20, 10, RED);
+        }
+
         std::string diagnostics;
         const double percent_of_entities = entities_.live_count() == 0
             ? 0.0
