@@ -326,6 +326,8 @@ namespace kotte
         place_bomb_requests_.clear();
     }
 
+
+
     void Application::apply_entity_destructions(){
         // A moving entity may overlap several blast tiles, and several bombs may
         // reach it in one frame. Canonicalizing requests makes that multiplicity
@@ -340,7 +342,16 @@ namespace kotte
             if(doomed == nullptr){
                 continue;
             }
-
+            if (doomed->kind == EntityKind::crate || doomed->kind == EntityKind::enemy)
+            {
+                if (random_.coin_flip(0.333)) {
+                    Entity powerup{
+                    .kind = EntityKind::powerup,
+                    .world_position = doomed->world_position };
+                    EntityHandle powerup_handle = entities_.create(powerup);
+                    spatial_grid_.insert(powerup_handle, entity_world_bounds(powerup));
+                }
+            }
             // Spatial membership is derived from the live entity, so remove it
             // while the handle can still resolve to the bounds used at insertion.
             spatial_grid_.remove(request.entity, entity_world_bounds(*doomed));
