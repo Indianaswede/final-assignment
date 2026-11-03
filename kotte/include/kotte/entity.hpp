@@ -31,10 +31,16 @@ namespace kotte
         bool owner_escape = true;
     };
 
+    struct PlayerState final {
+        int health = 5;
+        float invincibility_timer = 0.0f;
+    };
+
     struct Entity final {
         EntityKind kind = EntityKind::crate;
         Vector2 world_position{};
         CardinalDirection movement_heading = CardinalDirection::right;
         std::optional<BombState> bomb_state;
+        std::optional<PlayerState> player_state;
     };
 }

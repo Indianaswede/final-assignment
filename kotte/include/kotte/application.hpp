@@ -106,6 +106,7 @@ namespace kotte
         void initialize_enemies();
         void player_takes_damage();
         void reset();
+        Color player_color();
         [[nodiscard]] Entity& entity(EntityHandle handle) noexcept;
         [[nodiscard]] const Entity& entity(EntityHandle handle) const noexcept;
         [[nodiscard]] Entity& player() noexcept;

@@ -576,13 +576,25 @@ namespace kotte
             const RenderLayer layer = visible_candidate->kind == EntityKind::bomb
                 ? RenderLayer::ground
                 : RenderLayer::world;
-            renderer_.submit({
+            if (visible_candidate->kind == EntityKind::player)
+            {
+                renderer_.submit({
+                bounds,
+                player_color(),
+                layer,
+                visible_candidate->world_position.y,
+                entity_roundness(visible_candidate->kind)
+                    });
+            }
+            else {
+                renderer_.submit({
                 bounds,
                 entity_color(visible_candidate->kind),
                 layer,
                 visible_candidate->world_position.y,
                 entity_roundness(visible_candidate->kind)
-            });
+                    });
+            }
         }
         renderer_.sort();
         renderer_.execute();
@@ -657,7 +669,14 @@ namespace kotte
         // relocate slot storage. Handles remain valid even if this estimate grows.
         entities_.reserve(map_.tile_count() / 4);
 
-        const Entity player_entity{EntityKind::player, {tile_size_ * 2.5f, tile_size_ * 2.5f}};
+        const Entity player_entity{
+            .kind = EntityKind::player,
+            .world_position = {tile_size_ * 2.5f, tile_size_ * 2.5f},
+            .player_state = PlayerState{
+                .health = 5,
+                .invincibility_timer = 0.0f
+        }
+        };
         player_handle_ = entities_.create(player_entity);
         spatial_grid_.insert(player_handle_, entity_world_bounds(player_entity));
 
@@ -909,6 +928,17 @@ namespace kotte
         case EntityKind::powerup: return powerup_color_;
         }
         return MAGENTA;
+    }
+
+    Color Application::player_color() {
+        if (invincibility_timer_ == 0.0f)
+        {
+            return player_color_;
+        }
+        else
+        {
+            return damaged_player_color_;
+        }
     }
 
     float Application::entity_roundness(EntityKind kind) noexcept{
