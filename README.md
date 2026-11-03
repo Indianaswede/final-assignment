@@ -1,64 +1,36 @@
-# Bomberman World — [your game title]
+# Bomberman World — Bomberman Escape
 
-**Student:** [your name]
+**Student:** Aifwen Stromblad
 
 > Replace the prompts below and remove these instructions. Keep answers brief. Your implementation explanations and reflection belong in the presentation; you do not need to write them out here. Complete the final section only if seeking Pass with Distinction (VG).
 
 ## How to play
 
-- **Controls:** [movement, bombs, restart, and any extension controls]
-- **Objective and rules:** [how to win/lose; which result wins if both happen together; any extension rules needed to understand the game]
-- **Configurations / demo setup:** [how to select gameplay/stress configurations and use any special setup or debug keys; write “default” where appropriate]
+- **Controls:** Move with WASD or Arrow keys. Place a bomb with the spacebar. Press Q to quit the game. In a menu, press space to restart the game, and Q if you want to quit.
+- **Objective and rules:** If you run out of health (which you can see as red pips in the top right corner), you die and thus lose. Get 500 points and get to the exit in the bottom right corner of the map to win!
+- **Configurations / demo setup:** Press C to see turn off and on diagnostics.
 
 ## Features and validation
 
-(delete this pre-amble before submitting the assignment) Complete the five required features and three extensions of your choice. For each row, document **at least one useful check: what you tested, what you observed, and how the result compares with the expected behaviour**. One or two sentences per feature are enough. Choose a check that could reveal a mistake, such as a boundary case or interaction.
-
-Use the practical checks in the assignment to validate the acceptance conditions during development; this table is a small sample of that work. Manual play in a small, repeatable setup is sufficient. You can also use a debugger, temporary logging, or small scenarios set up in code. Screenshots, recordings, automated tests etc are welcome, but not required. Be ready to explain the relevant rules in your code.
 
 | Feature | Check, observed result, and expected behaviour |
 | --- | --- |
-| 1. Player damage and death | [what I tested, what I observed, and whether it matched the expected behaviour] |
-| 2. Round states and objective | [what I tested, what I observed, and whether it matched the expected behaviour] |
-| 3. Safe restart | [what I tested, what I observed, and whether it matched the expected behaviour] |
-| 4. Solid bombs with owner escape | [what I tested, what I observed, and whether it matched the expected behaviour] |
-| 5. Blast-range pickup | [what I tested, what I observed, and whether it matched the expected behaviour] |
-| [# and name of chosen extension 1] | [what I tested, what I observed, and whether it matched the expected behaviour] |
-| [# and name of chosen extension 2] | [what I tested, what I observed, and whether it matched the expected behaviour] |
-| [# and name of chosen extension 3] | [what I tested, what I observed, and whether it matched the expected behaviour] |
+| 1. Player damage and death | I spent three rounds trying to die by running into enemies and getting caught in my bomb explosons, while occasionally running into boxes and bombs to ensure they didn't deal damage. Each time I took damage when it was expected (running into enemies and getting caught by explosions) and eventually lost every time. |
+| 2. Round states and objective | I tried to win the game by destroying the enemies and then saw if the state would change suddenly from win to lose when I set a bomb near the exit that would kill me if the game updated. I was able to win and the game did not change from a lose to a win state, which is what's supposed to happen.  |
+| 3. Safe restart | I restarted the game multiple times, seeing if there was an unexpected increase in entities and if there was anything that carried over that shouldn't have. I did not observe any irregularities, the map was different each time and the number of enemies stayed around 300 or so each time. This was expected. |
+| 4. Solid bombs with owner escape | I set down bombs that I would stand in and let enemies run into them to see if they registered as solid. Then I would set down another, step off of it, and run back into it to see if I collided with it. The enemies acted accordingly and I found that if I stepped off of it, I would collide with it when I ran back. I did notice that sometimes I would place a bomb and I was already outside of it when it was placed, and thus I collided with it immediately.|
+| 5. Blast-range pickup | I blew up multiple crates and enemies to see if the power up would spawn regularly. Then I would check the range of a bomb, drop a bomb and then collide with the power up to pick them up and checked that each one increased the range of the bomb explosion by one. I found the powerups spawned frequently enough and the blast range increase would only happen after I picked up the powerup, so long as I didn't place a bomb before (which would retain the old range). This is what was expected. |
+| 8. Shield or Temporary Invulnerability | I ran into enemies and checked how long it would take them to kill me. They did not kill me instantly. I then tested various combinations of being caught in bomb explosions and running into multiple enemies to see if there was a way to take damage when I should e protected by the invincibility frames. I found that no damage would be taken until the invincibility frames ended. |
+| 10. Exit or Progression Gate | I got to the gate to see if I could end the game before I got 500 points. I found that I could not do so. I then checked to see if it worked when I got 500 points. It did and I was able to get to the win state by doing so.|
+| 11. Scoring and Combos | I tried killing multiple enemies in short succession, either by getting multiple in the same explosion or moving quickly to place a bomb shortly after the last one blew up. Each time, the combo score would go up and the timer would reset. My points increased appropriately, increasing initally by 10 and then increasing the points I got from killing an enemy by 5 per each subsequent kill as long as the combo timer ran out. |
 
-Example: “I ended a round with live bombs and restarted three times to check that old-round state was cleared. No old explosions appeared, and bomb capacity reset each time.” Report your actual results, including any failures or remaining limitations; stating that something “works” does not describe a check.
-
-**Known issues:** [remaining problems and how to encounter them, or “None known after testing”]
+**Known issues:** Sometimes enemies got caught in the wall or by the deft placement of a bomb and were stuck. Similarly, a bomb would be placed on a tile next to where most of the player was, sometimes even inside a crate. Perhaps improving the way enemies spawn and how bombs are placed could fix this.
 
 ## Sources and assistance
 
 This project builds on the shared Kotte foundations.
 
-[Briefly identify meaningful external code/resources, discussion or collaboration, and AI assistance. Link to sources where relevant, say what they contributed, and explain what you checked yourself. State “None beyond the course material” if applicable. No prompt transcript or activity diary is needed. Retain required licence/attribution notices.]
+Outside of Class Resources, I referred to the Raylib Documentation and the C++ documentation to remind myself of the algorithms and methods used.
 
-## Architectural investigation — VG only
-
-Delete this section for a G submission. For VG, pose a focused engineering question about one decision in your implementation, investigate it, and draw a conclusion from evidence. Documenting the explanation already required for G is not enough. Aim for half a page to one page, excluding small tables, diagrams, or code excerpts. You can use the same decision in your presentation too.
-
-### Decision
-
-[State the question you are investigating and the implementation decision it concerns. Describe your current approach and a plausible alternative. Identify the relevant code. You do not need to implement the alternative.]
-
-### Method
-
-[How did you investigate the decision? Give enough detail to reproduce the key observation: setup, input, configuration/seed, and the test, trace, debugger inspection, or other method used.]
-
-### Evidence
-
-[What did you actually observe in your game? Include the relevant result or a small excerpt, table, or link to supporting material.]
-
-### Interpretation
-
-[Explain why it happened using the relevant code or architecture. Analyse at least one edge case, failure, defect, limitation, or trade-off illustrated by the investigation. Discuss relevant consequences for correctness, maintainability, performance, and/or scalability; you do not need to cover all four.]
-
-### Conclusion
-
-[When is your approach appropriate, what limits it, and when might an alternative become preferable? Base the conclusion on your evidence. Confirming that the current approach is suitable is a valid result.]
 
 <!-- Submission: commit and push this README with your source to GitHub or the internal Gitea server. Submit the final commit link and a runnable Release ZIP from that version in Studium. Ensure the teacher can access the repository throughout assessment. -->

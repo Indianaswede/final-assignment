@@ -173,5 +173,6 @@ namespace kotte
         bool exit_requested_ = false;
         State game_state_ = Playing;
         bool player_damaged_by_blast_ = false; //reset back to false
+        bool show_diagnostics_ = true;
     };
 }
