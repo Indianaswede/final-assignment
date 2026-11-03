@@ -706,6 +706,7 @@ namespace kotte
         case EntityKind::bomb: size = {22.0f, 22.0f}; break;
         case EntityKind::crate: size = {36.0f, 48.0f}; break;
         case EntityKind::enemy: size = {28.0f, 30.0f}; break;
+        case EntityKind::powerup: size = { tile_size_, tile_size_ }; break;
         }
 
         const Vector2 top_left = entity.world_position - Vector2{size.x / 2.0f, size.y};
@@ -774,7 +775,15 @@ namespace kotte
             }
 
             const Entity* candidate = entities_.try_get(candidate_handle);
-            if(candidate == nullptr){
+            if(candidate == nullptr || !is_solid(candidate->kind)){
+                if (candidate != nullptr && candidate->kind == EntityKind::powerup && proposed_entity.kind == EntityKind::player)
+                {
+                    if (CheckCollisionRecs(proposed_collision_bounds, entity_collision_bounds(*candidate))) {
+                        bomb_blast_range_ += 1;
+                        destroy_entity_requests_.push_back({candidate_handle});
+                    }
+                    
+                }
                 continue;
             }
 
@@ -808,8 +817,9 @@ namespace kotte
         case EntityKind::player:
         case EntityKind::crate:
         case EntityKind::enemy:
-            return true;
         case EntityKind::bomb:
+            return true;
+        case EntityKind::powerup:
             return false;
         }
 
@@ -870,6 +880,7 @@ namespace kotte
         case EntityKind::bomb: return bomb_color_;
         case EntityKind::crate: return crate_color_;
         case EntityKind::enemy: return enemy_color_;
+        case EntityKind::powerup: return powerup_color_;
         }
         return MAGENTA;
     }
@@ -885,6 +896,7 @@ namespace kotte
     void Application::reset() 
     {
         health_ = 5;
+        bomb_blast_range_ = 3;
         player_damaged_by_blast_ = false;
         blast_effects_.clear();
         destroy_entity_requests_.clear();
