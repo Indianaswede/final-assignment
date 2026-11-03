@@ -944,7 +944,7 @@ namespace kotte
                 }
                 if ((proposed_entity.kind == EntityKind::player && candidate->kind == EntityKind::exit))
                 {
-                    if (score_ >= 500)
+                    if (score_ >= 500  && health_ > 0)
                     {
                         game_state_ = Win;
                     }
