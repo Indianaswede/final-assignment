@@ -150,6 +150,15 @@ namespace kotte
                 state.blast_range
             });
         }
+
+        if (invincibility_timer_ > 0.0f)
+        {
+            invincibility_timer_ -= delta_time;
+        }
+        else if (invincibility_timer_ < 0.0f)
+        {
+            invincibility_timer_ = 0.0f;
+        }
     }
 
     void Application::resolve_gameplay_facts(){
@@ -743,7 +752,12 @@ namespace kotte
 
     void Application::player_takes_damage()
     {
-        health_ -= 1;
+        if (invincibility_timer_ == 0.0f)
+        {
+
+            health_ -= 1;
+            invincibility_timer_ = invincibility_seconds_;
+        }
     }
 
     bool Application::entity_movement_is_blocked(
