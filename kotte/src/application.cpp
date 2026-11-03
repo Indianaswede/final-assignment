@@ -634,10 +634,27 @@ namespace kotte
             : 100.0 * (1.0 - static_cast<double>(collision_diagnostics_.unique_candidates) / naive_collision_work);
 
         Vector2 text_size_score = MeasureTextEx(GetFontDefault(), TextFormat("Score:%03i", score_), 40, 5);
+
         DrawText(TextFormat("Score:%03i", score_),
             window_.width() - int(text_size_score.x),
             50 - int(text_size_score.y / 2), 
             40, YELLOW);
+        if (combo_timer_ > 0.0f)
+        {
+
+            Vector2 text_size_combo = MeasureTextEx(GetFontDefault(), TextFormat("Combo:%01.01f", combo_), 20, 3);
+            Vector2 text_size_combo_timer = MeasureTextEx(GetFontDefault(), TextFormat("%02.02f", combo_timer_), 20, 3);
+            DrawText(TextFormat("Combo:%01.01f", combo_),
+                window_.width() - int(text_size_combo.x),
+                95 - int(text_size_combo.y / 2),
+                20, YELLOW);
+            DrawText(TextFormat("%02.02f", combo_timer_),
+                window_.width() - int(text_size_combo_timer.x),
+                120 - int(text_size_combo_timer.y / 2),
+                20, YELLOW);
+        }
+        
+
 
         DrawFPS(GetScreenWidth() - 100, 2);
 
