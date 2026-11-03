@@ -172,11 +172,6 @@ namespace kotte
         EntityHandle exit_handle_;
         bool exit_requested_ = false;
         State game_state_ = Playing;
-        int health_ = 5; //reset back to 5
         bool player_damaged_by_blast_ = false; //reset back to false
-        float invincibility_timer_ = 0.0f;
-        int score_ = 0;
-        float combo_timer_ = 0.0f;
-        float combo_ = 1.0f;
     };
 }

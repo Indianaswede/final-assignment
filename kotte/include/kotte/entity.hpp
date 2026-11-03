@@ -35,6 +35,9 @@ namespace kotte
     struct PlayerState final {
         int health = 5;
         float invincibility_timer = 0.0f;
+        int score = 0;
+        float combo = 1.0f;
+        float combo_timer = 0.0f;
     };
 
     struct Entity final {

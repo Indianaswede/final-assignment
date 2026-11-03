@@ -157,21 +157,21 @@ namespace kotte
                     });
             }
 
-            if (invincibility_timer_ > 0.0f)
+            if (player().player_state->invincibility_timer > 0.0f)
             {
-                invincibility_timer_ -= delta_time;
-                if (invincibility_timer_ < 0.0f)
+                player().player_state->invincibility_timer -= delta_time;
+                if (player().player_state->invincibility_timer < 0.0f)
                 {
-                    invincibility_timer_ = 0.0f;
+                    player().player_state->invincibility_timer = 0.0f;
                 }
             }
-            if (combo_timer_ > 0.0f)
+            if (player().player_state->combo_timer > 0.0f)
             {
-                combo_timer_ -= delta_time;
-                if (combo_timer_ < 0.0f)
+                player().player_state->combo_timer -= delta_time;
+                if (player().player_state->combo_timer < 0.0f)
                 {
-                    combo_timer_ = 0.0f;
-                    combo_ = 1.0f;
+                    player().player_state->combo_timer = 0.0f;
+                    player().player_state->combo = 1.0f;
                 }
             }
         }
@@ -265,7 +265,7 @@ namespace kotte
 
         const Rectangle new_world_bounds = entity_world_bounds(player_entity);
         spatial_grid_.update(player_handle_, old_world_bounds, new_world_bounds);
-        if (health_ < 1)
+        if (player().player_state->health < 1)
         {
             game_state_ = Lose;
         }
@@ -408,9 +408,9 @@ namespace kotte
                 }
                 if (doomed->kind == EntityKind::enemy)
                 {
-                    score_ += int(10.0f * combo_);
-                    combo_ += 0.5f;
-                    combo_timer_ = combo_seconds_;
+                    player().player_state->score += int(10.0f * player().player_state->combo);
+                    player().player_state->combo += 0.5f;
+                    player().player_state->combo_timer = combo_seconds_;
                 }
             }
             // Spatial membership is derived from the live entity, so remove it
@@ -534,14 +534,14 @@ namespace kotte
             }
 
             Vector2 text_size_result = MeasureTextEx(GetFontDefault(), TextFormat(result.c_str()), 40, 5);
-            Vector2 text_size_score = MeasureTextEx(GetFontDefault(), TextFormat("Score:%04i", score_), 30, 4);
+            Vector2 text_size_score = MeasureTextEx(GetFontDefault(), TextFormat("Score:%04i", player().player_state->score), 30, 4);
             Vector2 text_size_play_again = MeasureTextEx(GetFontDefault(), TextFormat("To play again, press the space bar!"), 20, 2);
             Vector2 text_size_quit = MeasureTextEx(GetFontDefault(), TextFormat("To quit, press the Q key or escape key!"), 20, 2);
 
             DrawText(TextFormat(result.c_str()), 
                 (window_.width() / 2) - int(text_size_result.x / 2.0f), 
                 (window_.height() / 2) - int(text_size_result.y / 2.0f), 40, RAYWHITE);
-            DrawText(TextFormat("Score:%04i", score_),
+            DrawText(TextFormat("Score:%04i", player().player_state->score),
                 (window_.width() / 2) - int(text_size_score.x / 2.0f),
                 (window_.height() / 2) + 45 - int(text_size_score.y / 2.0f), 30, RAYWHITE);
             DrawText(TextFormat("To play again, press the space bar!"), 
@@ -670,7 +670,7 @@ namespace kotte
         renderer_.sort();
         renderer_.execute();
 
-        for (int i = 0; i < health_; i++)
+        for (int i = 0; i < player().player_state->health; i++)
         {
             DrawCircle(window_.width() - 20 - (30 * i), 20, 10, RED);
         }
@@ -689,28 +689,28 @@ namespace kotte
             ? 0.0
             : 100.0 * (1.0 - static_cast<double>(collision_diagnostics_.unique_candidates) / naive_collision_work);
 
-        Vector2 text_size_score = MeasureTextEx(GetFontDefault(), TextFormat("Score:%03i", score_), 40, 5);
+        Vector2 text_size_score = MeasureTextEx(GetFontDefault(), TextFormat("Score:%03i", player().player_state->score), 40, 5);
 
-        DrawText(TextFormat("Score:%03i", score_),
+        DrawText(TextFormat("Score:%03i", player().player_state->score),
             window_.width() - int(text_size_score.x),
             50 - int(text_size_score.y / 2), 
             40, YELLOW);
-        if (combo_timer_ > 0.0f)
+        if (player().player_state->combo_timer > 0.0f)
         {
 
-            Vector2 text_size_combo = MeasureTextEx(GetFontDefault(), TextFormat("Combo:%01.01f", combo_), 20, 3);
-            Vector2 text_size_combo_timer = MeasureTextEx(GetFontDefault(), TextFormat("%02.02f", combo_timer_), 20, 3);
-            DrawText(TextFormat("Combo:%01.01f", combo_),
+            Vector2 text_size_combo = MeasureTextEx(GetFontDefault(), TextFormat("Combo:%01.01f", player().player_state->combo), 20, 3);
+            Vector2 text_size_combo_timer = MeasureTextEx(GetFontDefault(), TextFormat("%02.02f", player().player_state->combo_timer), 20, 3);
+            DrawText(TextFormat("Combo:%01.01f", player().player_state->combo),
                 window_.width() - int(text_size_combo.x),
                 95 - int(text_size_combo.y / 2),
                 20, YELLOW);
-            DrawText(TextFormat("%02.02f", combo_timer_),
+            DrawText(TextFormat("%02.02f", player().player_state->combo_timer),
                 window_.width() - int(text_size_combo_timer.x),
                 120 - int(text_size_combo_timer.y / 2),
                 20, YELLOW);
         }
         
-        if (score_ < 500)
+        if (player().player_state->score < 500)
         {
             Vector2 text_size_objective = MeasureTextEx(GetFontDefault(), TextFormat("Get 500 points!"), 20, 3);
 
@@ -786,7 +786,10 @@ namespace kotte
             .world_position = {tile_size_ * 2.5f, tile_size_ * 2.5f},
             .player_state = PlayerState{
                 .health = 5,
-                .invincibility_timer = 0.0f
+                .invincibility_timer = 0.0f,
+                .score = 0,
+                .combo = 1.0f,
+                .combo_timer = 0.0f
         }
         };
         player_handle_ = entities_.create(player_entity);
@@ -892,11 +895,10 @@ namespace kotte
 
     void Application::player_takes_damage()
     {
-        if (invincibility_timer_ == 0.0f)
+        if (player().player_state->invincibility_timer == 0.0f)
         {
-
-            health_ -= 1;
-            invincibility_timer_ = invincibility_seconds_;
+            player().player_state->health -= 1;
+            player().player_state->invincibility_timer = invincibility_seconds_;
         }
     }
 
@@ -967,7 +969,7 @@ namespace kotte
                 }
                 if ((proposed_entity.kind == EntityKind::player && candidate->kind == EntityKind::exit))
                 {
-                    if (score_ >= 500  && health_ > 0)
+                    if (player().player_state->score >= 500  && player().player_state->health > 0)
                     {
                         game_state_ = Win;
                     }
@@ -1062,7 +1064,7 @@ namespace kotte
     }
 
     Color Application::player_color() {
-        if (invincibility_timer_ == 0.0f)
+        if (player().player_state->invincibility_timer == 0.0f)
         {
             return player_color_;
         }
@@ -1073,7 +1075,7 @@ namespace kotte
     }
 
     Color Application::exit_color() {
-        if (score_ >= 500)
+        if (player().player_state->score >= 500)
         {
             return exit_color_;
         }
@@ -1093,11 +1095,6 @@ namespace kotte
 
     void Application::reset() 
     {
-        score_ = 0;
-        combo_ = 1.0f;
-        combo_timer_ = 0.0f;
-        invincibility_timer_ = 0.0f;
-        health_ = 5;
         bomb_blast_range_ = 3;
         player_damaged_by_blast_ = false;
         blast_effects_.clear();
