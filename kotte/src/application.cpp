@@ -108,115 +108,134 @@ namespace kotte
 
     void Application::update_gameplay(float delta_time){
         // The player and every enemy are movers; each asks its own collision question.
-        update_player(delta_time);
-        update_enemies(delta_time);
-        queue_bomb_placement();
+        if (game_state_ == Playing)
+        {
+            update_player(delta_time);
+            update_enemies(delta_time);
+            queue_bomb_placement();
+        }
+        
     }
 
     void Application::update_timed_gameplay(float delta_time){
         // This list is independent of camera queries, so off-screen fuses advance.
-        for(const EntityHandle bomb_handle : active_bomb_handles_){
-            Entity* bomb = entities_.try_get(bomb_handle);
-            if(bomb == nullptr || !bomb->bomb_state.has_value()
-                || bomb->bomb_state->detonation_requested){
-                continue;
+        if (game_state_ == Playing)
+        {
+            for (const EntityHandle bomb_handle : active_bomb_handles_) {
+                Entity* bomb = entities_.try_get(bomb_handle);
+                if (bomb == nullptr || !bomb->bomb_state.has_value()
+                    || bomb->bomb_state->detonation_requested) {
+                    continue;
+                }
+
+                BombState& state = *bomb->bomb_state;
+                state.fuse_remaining -= delta_time;
+                if (state.owner_escape)
+                {
+                    Rectangle playerRec = entity_collision_bounds(entity(bomb->bomb_state->owner));
+                    Rectangle bombRec = entity_collision_bounds(*bomb);
+                    if (!CheckCollisionRecs(playerRec, bombRec))
+                    {
+                        state.owner_escape = false;
+                    }
+                }
+                if (state.fuse_remaining > 0.0f) {
+                    continue;
+                }
+
+
+                state.fuse_remaining = 0.0f;
+                state.detonation_requested = true;
+
+                // The fact owns every value needed by later phases; it does not
+                // borrow the bomb that will eventually request its own destruction.
+                bomb_detonated_facts_.push_back({
+                    bomb_handle,
+                    state.owner,
+                    bomb->world_position,
+                    state.blast_range
+                    });
             }
 
-            BombState& state = *bomb->bomb_state;
-            state.fuse_remaining -= delta_time;
-            if (state.owner_escape)
+            if (invincibility_timer_ > 0.0f)
             {
-                Rectangle playerRec = entity_collision_bounds(entity(bomb->bomb_state->owner));
-                Rectangle bombRec = entity_collision_bounds(*bomb);
-                if (!CheckCollisionRecs(playerRec, bombRec))
+                invincibility_timer_ -= delta_time;
+                if (invincibility_timer_ < 0.0f)
                 {
-                    state.owner_escape = false;
+                    invincibility_timer_ = 0.0f;
                 }
             }
-            if(state.fuse_remaining > 0.0f){
-                continue;
-            }
-            
-
-            state.fuse_remaining = 0.0f;
-            state.detonation_requested = true;
-
-            // The fact owns every value needed by later phases; it does not
-            // borrow the bomb that will eventually request its own destruction.
-            bomb_detonated_facts_.push_back({
-                bomb_handle,
-                state.owner,
-                bomb->world_position,
-                state.blast_range
-            });
-        }
-
-        if (invincibility_timer_ > 0.0f)
-        {
-            invincibility_timer_ -= delta_time;
-            if (invincibility_timer_ < 0.0f)
+            if (combo_timer_ > 0.0f)
             {
-                invincibility_timer_ = 0.0f;
-            }
-        }
-        if (combo_timer_ > 0.0f)
-        {
-            combo_timer_ -= delta_time;
-            if (combo_timer_ < 0.0f)
-            {
-                combo_timer_ = 0.0f;
-                combo_ = 1.0f;
+                combo_timer_ -= delta_time;
+                if (combo_timer_ < 0.0f)
+                {
+                    combo_timer_ = 0.0f;
+                    combo_ = 1.0f;
+                }
             }
         }
     }
 
     void Application::resolve_gameplay_facts(){
-        for(const BombDetonated& fact : bomb_detonated_facts_){
-            BlastEffect effect;
-            effect.remaining_seconds = blast_effect_seconds_;
-            effect.tile_centres.reserve(static_cast<std::size_t>(fact.blast_range) * 4 + 1);
+        if (game_state_ == Playing)
+        {
+            for (const BombDetonated& fact : bomb_detonated_facts_) {
+                BlastEffect effect;
+                effect.remaining_seconds = blast_effect_seconds_;
+                effect.tile_centres.reserve(static_cast<std::size_t>(fact.blast_range) * 4 + 1);
 
-            const float tile_extent = static_cast<float>(tile_size_);
-            const int origin_column = static_cast<int>(std::floor(fact.world_position.x / tile_extent));
-            const int origin_row = static_cast<int>(std::floor(fact.world_position.y / tile_extent));
-            (void) resolve_blast_tile(effect, origin_column, origin_row);
+                const float tile_extent = static_cast<float>(tile_size_);
+                const int origin_column = static_cast<int>(std::floor(fact.world_position.x / tile_extent));
+                const int origin_row = static_cast<int>(std::floor(fact.world_position.y / tile_extent));
+                (void)resolve_blast_tile(effect, origin_column, origin_row);
 
-            // The detonating bomb must disappear even if its presentation or
-            // collision bounds change independently of blast-tile detection.
-            destroy_entity_requests_.push_back({fact.bomb});
+                // The detonating bomb must disappear even if its presentation or
+                // collision bounds change independently of blast-tile detection.
+                destroy_entity_requests_.push_back({ fact.bomb });
 
-            append_blast_ray(effect, origin_column, origin_row, 0, -1, fact.blast_range);
-            append_blast_ray(effect, origin_column, origin_row, 1, 0, fact.blast_range);
-            append_blast_ray(effect, origin_column, origin_row, 0, 1, fact.blast_range);
-            append_blast_ray(effect, origin_column, origin_row, -1, 0, fact.blast_range);
+                append_blast_ray(effect, origin_column, origin_row, 0, -1, fact.blast_range);
+                append_blast_ray(effect, origin_column, origin_row, 1, 0, fact.blast_range);
+                append_blast_ray(effect, origin_column, origin_row, 0, 1, fact.blast_range);
+                append_blast_ray(effect, origin_column, origin_row, -1, 0, fact.blast_range);
 
-            if (player_damaged_by_blast_)
-            {
-                player_damaged_by_blast_ = false;
+                if (player_damaged_by_blast_)
+                {
+                    player_damaged_by_blast_ = false;
+                }
+
+                blast_effects_.push_back(std::move(effect));
             }
 
-            blast_effects_.push_back(std::move(effect));
+            bomb_detonated_facts_.clear();
         }
-
-        bomb_detonated_facts_.clear();
+        
 
     }
 
     void Application::apply_structural_mutations(){
         // Entity storage and every derived index change only at this boundary.
-        apply_entity_destructions(false);
-        apply_bomb_placements();
+        if (game_state_ == Playing)
+        {
+            apply_entity_destructions(false);
+            apply_bomb_placements();
+        }
+        
     }
 
     void Application::update_presentation(float delta_time){
-        for(BlastEffect& effect : blast_effects_){
-            effect.remaining_seconds -= delta_time;
-        }
-        std::erase_if(blast_effects_, [](const BlastEffect& effect){
-            return effect.remaining_seconds <= 0.0f;
-        });
+        if (game_state_ == Playing)
+        {
+            for (BlastEffect& effect : blast_effects_) {
+                effect.remaining_seconds -= delta_time;
+            }
+            std::erase_if(blast_effects_, [](const BlastEffect& effect) {
+                return effect.remaining_seconds <= 0.0f;
+                });
 
-        update_camera(delta_time);
+            update_camera(delta_time);
+        }
+        
     }
 
     void Application::update_player(float delta_time){
