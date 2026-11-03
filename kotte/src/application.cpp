@@ -437,6 +437,11 @@ namespace kotte
                     player_damaged_by_blast_ = true;
                 }
                 break;
+            case EntityKind::exit:
+                blocked_by_crate = true;
+                break;
+            case EntityKind::powerup:
+                break;
             }
         }
 
@@ -718,9 +723,16 @@ namespace kotte
         player_handle_ = entities_.create(player_entity);
         spatial_grid_.insert(player_handle_, entity_world_bounds(player_entity));
 
+        const Entity exit_entity{
+            .kind = EntityKind::exit,
+            .world_position = {tile_size_ * (map_.width() - 2.5f), tile_size_ * (map_.height() - 2.0f)},
+        };
+        exit_handle_ = entities_.create(exit_entity);
+        spatial_grid_.insert(exit_handle_, entity_world_bounds(exit_entity));
+
         for(int y = 1; y < map_.height() - 1; ++y){
             for(int x = 1; x < map_.width() - 1; ++x){
-                if((x == 2 && y == 2) || map_.at(x, y).type != TileType::floor || !random_.coin_flip(0.25f)){
+                if((x == 2 && y == 2) || (x == map_.width() - 3 && y == map_.height() - 3) || map_.at(x, y).type != TileType::floor || !random_.coin_flip(0.25f)) {
                     continue;
                 }
 
@@ -784,6 +796,7 @@ namespace kotte
         case EntityKind::crate: size = {36.0f, 48.0f}; break;
         case EntityKind::enemy: size = {28.0f, 30.0f}; break;
         case EntityKind::powerup: size = { tile_size_, tile_size_ }; break;
+        case EntityKind::exit: size = { tile_size_, tile_size_ }; break;
         }
 
         const Vector2 top_left = entity.world_position - Vector2{size.x / 2.0f, size.y};
@@ -801,6 +814,7 @@ namespace kotte
         case EntityKind::crate: size = {32.0f, 32.0f}; break;
         case EntityKind::enemy: size = {24.0f, 14.0f}; break;
         case EntityKind::powerup: size = { tile_size_, tile_size_ }; break;
+        case EntityKind::exit: size = { tile_size_, tile_size_ }; break;
         }
 
         const Vector2 top_left = entity.world_position - Vector2{size.x / 2.0f, size.y};
@@ -882,6 +896,14 @@ namespace kotte
                         continue;
                     }
                 }
+                if ((proposed_entity.kind == EntityKind::player && candidate->kind == EntityKind::exit))
+                {
+                    if (score_ >= 500)
+                    {
+                        game_state_ = Win;
+                    }
+                    continue;
+                }
                 blocked = true;
                 if ((proposed_entity.kind == EntityKind::enemy && candidate->kind == EntityKind::player)
                     || (proposed_entity.kind == EntityKind::player && candidate->kind == EntityKind::enemy))
@@ -901,6 +923,7 @@ namespace kotte
         case EntityKind::crate:
         case EntityKind::enemy:
         case EntityKind::bomb:
+        case EntityKind::exit:
             return true;
         case EntityKind::powerup:
             return false;
@@ -964,6 +987,7 @@ namespace kotte
         case EntityKind::crate: return crate_color_;
         case EntityKind::enemy: return enemy_color_;
         case EntityKind::powerup: return powerup_color_;
+        case EntityKind::exit: return exit_color_;
         }
         return MAGENTA;
     }
@@ -989,6 +1013,10 @@ namespace kotte
 
     void Application::reset() 
     {
+        score_ = 0;
+        combo_ = 1.0f;
+        combo_timer_ = 0.0f;
+        invincibility_timer_ = 0.0f;
         health_ = 5;
         bomb_blast_range_ = 3;
         player_damaged_by_blast_ = false;

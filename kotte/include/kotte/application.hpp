@@ -146,6 +146,7 @@ namespace kotte
         static constexpr Color crate_color_{0xb0, 0x72, 0x3c, 0xff};
         static constexpr Color enemy_color_{0xd9, 0x4f, 0x70, 0xff};
         static constexpr Color powerup_color_{ 0xff, 0xa5, 0x00, 0xff };
+        static constexpr Color exit_color_{ 0x00, 0xff, 0x00, 0xff };
         static constexpr Color wall_color_{0x78, 0x5f, 0x47, 0xff};
 
         Window window_; // Constructed first, destroyed last.
@@ -166,6 +167,7 @@ namespace kotte
         CollisionDiagnostics collision_diagnostics_;
         std::uint64_t seed_;
         EntityHandle player_handle_; // used in reset to reset position
+        EntityHandle exit_handle_;
         bool exit_requested_ = false;
         State game_state_ = Playing;
         int health_ = 5; //reset back to 5
