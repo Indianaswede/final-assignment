@@ -124,9 +124,19 @@ namespace kotte
 
             BombState& state = *bomb->bomb_state;
             state.fuse_remaining -= delta_time;
+            if (state.owner_escape)
+            {
+                Rectangle playerRec = entity_collision_bounds(player());
+                Rectangle bombRec = entity_collision_bounds(*bomb);
+                if (!CheckCollisionRecs(playerRec, bombRec))
+                {
+                    state.owner_escape = false;
+                }
+            }
             if(state.fuse_remaining > 0.0f){
                 continue;
             }
+            
 
             state.fuse_remaining = 0.0f;
             state.detonation_requested = true;
@@ -764,7 +774,7 @@ namespace kotte
             }
 
             const Entity* candidate = entities_.try_get(candidate_handle);
-            if(candidate == nullptr || !is_solid(candidate->kind)){
+            if(candidate == nullptr){
                 continue;
             }
 
@@ -772,12 +782,21 @@ namespace kotte
             ++collision_diagnostics_.exact_tests;
             if(CheckCollisionRecs(proposed_collision_bounds, entity_collision_bounds(*candidate))){
                 ++collision_diagnostics_.contacts;
+                if ((proposed_entity.kind == EntityKind::player && candidate->kind == EntityKind::bomb))
+                {
+                    const BombState& state = *candidate->bomb_state;
+                    if (state.owner_escape)
+                    {
+                        continue;
+                    }
+                }
                 blocked = true;
                 if ((proposed_entity.kind == EntityKind::enemy && candidate->kind == EntityKind::player)
                     || (proposed_entity.kind == EntityKind::player && candidate->kind == EntityKind::enemy))
                 {
                     player_takes_damage();
                 }
+
             }
         }
 
@@ -883,6 +902,7 @@ namespace kotte
         apply_entity_destructions();
         destroy_entity_requests_.clear();
         populate_entities();
+        initialize_enemies();
     }
 
 } //kotte
