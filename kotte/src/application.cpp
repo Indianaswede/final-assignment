@@ -534,12 +534,16 @@ namespace kotte
             }
 
             Vector2 text_size_result = MeasureTextEx(GetFontDefault(), TextFormat(result.c_str()), 40, 5);
+            Vector2 text_size_score = MeasureTextEx(GetFontDefault(), TextFormat("Score:%04i", score_), 30, 4);
             Vector2 text_size_play_again = MeasureTextEx(GetFontDefault(), TextFormat("To play again, press the space bar!"), 20, 2);
             Vector2 text_size_quit = MeasureTextEx(GetFontDefault(), TextFormat("To quit, press the Q key or escape key!"), 20, 2);
 
             DrawText(TextFormat(result.c_str()), 
                 (window_.width() / 2) - int(text_size_result.x / 2.0f), 
                 (window_.height() / 2) - int(text_size_result.y / 2.0f), 40, RAYWHITE);
+            DrawText(TextFormat("Score:%04i", score_),
+                (window_.width() / 2) - int(text_size_score.x / 2.0f),
+                (window_.height() / 2) + 45 - int(text_size_score.y / 2.0f), 30, RAYWHITE);
             DrawText(TextFormat("To play again, press the space bar!"), 
                 (window_.width() / 2) - int(text_size_play_again.x / 2.0f), 
                 (3 * (window_.height() / 4)) - int(text_size_play_again.y / 2.0f), 20, RAYWHITE);
