@@ -618,6 +618,12 @@ namespace kotte
             ? 0.0
             : 100.0 * (1.0 - static_cast<double>(collision_diagnostics_.unique_candidates) / naive_collision_work);
 
+        Vector2 text_size_score = MeasureTextEx(GetFontDefault(), TextFormat("Score:%03i", score_), 40, 5);
+        DrawText(TextFormat("Score:%03i", score_),
+            window_.width() - int(text_size_score.x),
+            50 - int(text_size_score.y / 2), 
+            40, YELLOW);
+
         DrawFPS(GetScreenWidth() - 100, 2);
 
         const double percent_of_world = map_.tile_count() == 0 ? 0.0 : 100.0 * static_cast<double>(tiles_rendered) / static_cast<double>(map_.tile_count());

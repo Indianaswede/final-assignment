@@ -131,6 +131,7 @@ namespace kotte
         static constexpr float enemy_speed_ = 80.0f;
         static constexpr float bomb_fuse_seconds_ = 2.0f;
         static constexpr float invincibility_seconds_ = 1.5f;
+        static constexpr float combo_seconds_ = 5.0f;
         static constexpr float blast_effect_seconds_ = 0.35f;
         static constexpr Color background_color_{0x11, 0x22, 0x33, 0xff};
         static constexpr Color floor_colors_[3]{
@@ -170,5 +171,8 @@ namespace kotte
         int health_ = 5; //reset back to 5
         bool player_damaged_by_blast_ = false; //reset back to false
         float invincibility_timer_ = 0.0f;
+        int score_ = 0;
+        float combo_timer_ = 0.0f;
+        float combo = 1.0f;
     };
 }
