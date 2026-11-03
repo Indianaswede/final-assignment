@@ -173,6 +173,6 @@ namespace kotte
         float invincibility_timer_ = 0.0f;
         int score_ = 0;
         float combo_timer_ = 0.0f;
-        float combo = 1.0f;
+        float combo_ = 1.0f;
     };
 }

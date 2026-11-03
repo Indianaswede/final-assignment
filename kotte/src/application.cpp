@@ -154,10 +154,19 @@ namespace kotte
         if (invincibility_timer_ > 0.0f)
         {
             invincibility_timer_ -= delta_time;
+            if (invincibility_timer_ < 0.0f)
+            {
+                invincibility_timer_ = 0.0f;
+            }
         }
-        else if (invincibility_timer_ < 0.0f)
+        if (combo_timer_ > 0.0f)
         {
-            invincibility_timer_ = 0.0f;
+            combo_timer_ -= delta_time;
+            if (combo_timer_ < 0.0f)
+            {
+                combo_timer_ = 0.0f;
+                combo_ = 1.0f;
+            }
         }
     }
 
@@ -359,6 +368,12 @@ namespace kotte
                     .world_position = doomed->world_position };
                     EntityHandle powerup_handle = entities_.create(powerup);
                     spatial_grid_.insert(powerup_handle, entity_world_bounds(powerup));
+                }
+                if (doomed->kind == EntityKind::enemy)
+                {
+                    score_ += int(10.0f * combo_);
+                    combo_ += 0.5f;
+                    combo_timer_ = combo_seconds_;
                 }
             }
             // Spatial membership is derived from the live entity, so remove it
