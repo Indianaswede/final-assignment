@@ -186,7 +186,7 @@ namespace kotte
 
     void Application::apply_structural_mutations(){
         // Entity storage and every derived index change only at this boundary.
-        apply_entity_destructions();
+        apply_entity_destructions(false);
         apply_bomb_placements();
     }
 
@@ -328,7 +328,7 @@ namespace kotte
 
 
 
-    void Application::apply_entity_destructions(){
+    void Application::apply_entity_destructions(bool resetting){
         // A moving entity may overlap several blast tiles, and several bombs may
         // reach it in one frame. Canonicalizing requests makes that multiplicity
         // explicit instead of depending on a forgiving destruction order.
@@ -342,7 +342,7 @@ namespace kotte
             if(doomed == nullptr){
                 continue;
             }
-            if (doomed->kind == EntityKind::crate || doomed->kind == EntityKind::enemy)
+            if ((doomed->kind == EntityKind::crate || doomed->kind == EntityKind::enemy) && !resetting)
             {
                 if (random_.coin_flip(0.333)) {
                     Entity powerup{
@@ -734,6 +734,7 @@ namespace kotte
         case EntityKind::bomb: size = {18.0f, 12.0f}; break;
         case EntityKind::crate: size = {32.0f, 32.0f}; break;
         case EntityKind::enemy: size = {24.0f, 14.0f}; break;
+        case EntityKind::powerup: size = { tile_size_, tile_size_ }; break;
         }
 
         const Vector2 top_left = entity.world_position - Vector2{size.x / 2.0f, size.y};
@@ -922,7 +923,7 @@ namespace kotte
         {
             destroy_entity_requests_.push_back({ handle });
         }
-        apply_entity_destructions();
+        apply_entity_destructions(true);
         destroy_entity_requests_.clear();
         populate_entities();
         initialize_enemies();

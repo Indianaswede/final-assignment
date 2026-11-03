@@ -87,7 +87,7 @@ namespace kotte
         void try_move_player(Vector2 axis_displacement);
         void update_enemies(float delta_time);
         void queue_bomb_placement();
-        void apply_entity_destructions();
+        void apply_entity_destructions(bool resetting);
         void apply_bomb_placements();
         [[nodiscard]] bool resolve_blast_tile(
             BlastEffect& effect,
