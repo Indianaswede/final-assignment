@@ -318,11 +318,14 @@ namespace kotte
 
     void Application::apply_bomb_placements(){
         for(const PlaceBombRequest& request : place_bomb_requests_){
+            
+            
             const Entity* owner = entities_.try_get(request.owner);
             if(owner == nullptr || owner->kind != EntityKind::player
                 || owner_has_active_bomb(request.owner)){
                 continue;
             }
+            
 
             const Entity bomb{
                 .kind = EntityKind::bomb,
@@ -333,6 +336,21 @@ namespace kotte
                     .blast_range = bomb_blast_range_
                 }
             };
+
+            SpatialQuery check = spatial_grid_.query(entity_world_bounds(bomb));
+            bool other_bomb_present = false;
+            for (EntityHandle object : check.entity_handles) {
+                Entity* candidate = entities_.try_get(object);
+                if (candidate->kind == EntityKind::bomb)
+                {
+                    other_bomb_present = true;
+                    break;
+                }
+            }
+            if (other_bomb_present)
+            {
+                continue;
+            }
             const EntityHandle bomb_handle = entities_.create(bomb);
 
             // The store owns the bomb; these handles are synchronized, non-owning
