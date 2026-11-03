@@ -606,6 +606,16 @@ namespace kotte
                 entity_roundness(visible_candidate->kind)
                     });
             }
+            else if (visible_candidate->kind == EntityKind::exit)
+            {
+                renderer_.submit({
+                bounds,
+                exit_color(),
+                layer,
+                visible_candidate->world_position.y,
+                entity_roundness(visible_candidate->kind)
+                    });
+            }
             else {
                 renderer_.submit({
                 bounds,
@@ -659,6 +669,24 @@ namespace kotte
                 20, YELLOW);
         }
         
+        if (score_ < 500)
+        {
+            Vector2 text_size_objective = MeasureTextEx(GetFontDefault(), TextFormat("Get 500 points!"), 20, 3);
+
+            DrawText(TextFormat("Get 500 points!"),
+                window_.width() - int(text_size_objective.x),
+                window_.height() - int(text_size_objective.y),
+                20, YELLOW);
+        }
+        else
+        {
+            Vector2 text_size_objective = MeasureTextEx(GetFontDefault(), TextFormat("Get to the exit in the bottom right!"), 20, 3);
+
+            DrawText(TextFormat("Get to the exit in the bottom right!"),
+                window_.width() - int(text_size_objective.x),
+                window_.height() - int(text_size_objective.y),
+                20, YELLOW);
+        }
 
 
         DrawFPS(GetScreenWidth() - 100, 2);
@@ -1000,6 +1028,17 @@ namespace kotte
         else
         {
             return damaged_player_color_;
+        }
+    }
+
+    Color Application::exit_color() {
+        if (score_ >= 500)
+        {
+            return exit_color_;
+        }
+        else
+        {
+            return closed_exit_color_;
         }
     }
 

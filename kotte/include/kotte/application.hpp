@@ -107,6 +107,7 @@ namespace kotte
         void player_takes_damage();
         void reset();
         Color player_color();
+        Color exit_color();
         [[nodiscard]] Entity& entity(EntityHandle handle) noexcept;
         [[nodiscard]] const Entity& entity(EntityHandle handle) const noexcept;
         [[nodiscard]] Entity& player() noexcept;
@@ -140,13 +141,14 @@ namespace kotte
             Color{0x42, 0x55, 0x60, 0xff}
         };
         static constexpr Color player_color_{0xf2, 0xc1, 0x4e, 0xff};
-        static constexpr Color damaged_player_color_{ 0xa2, 0xc1, 0x4e, 0xff };
+        static constexpr Color damaged_player_color_{ 0xff, 0x81, 0x0e, 0xff };
         static constexpr Color bomb_color_{0x20, 0x24, 0x2a, 0xff};
         static constexpr Color blast_color_{0xf2, 0x8f, 0x3b, 0xe8};
         static constexpr Color crate_color_{0xb0, 0x72, 0x3c, 0xff};
         static constexpr Color enemy_color_{0xd9, 0x4f, 0x70, 0xff};
         static constexpr Color powerup_color_{ 0xff, 0xa5, 0x00, 0xff };
         static constexpr Color exit_color_{ 0x00, 0xff, 0x00, 0xff };
+        static constexpr Color closed_exit_color_{ 0xff, 0x00, 0x00, 0xff };
         static constexpr Color wall_color_{0x78, 0x5f, 0x47, 0xff};
 
         Window window_; // Constructed first, destroyed last.
