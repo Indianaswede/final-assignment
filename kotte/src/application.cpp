@@ -126,7 +126,7 @@ namespace kotte
             state.fuse_remaining -= delta_time;
             if (state.owner_escape)
             {
-                Rectangle playerRec = entity_collision_bounds(player());
+                Rectangle playerRec = entity_collision_bounds(entity(bomb->bomb_state->owner));
                 Rectangle bombRec = entity_collision_bounds(*bomb);
                 if (!CheckCollisionRecs(playerRec, bombRec))
                 {
@@ -916,10 +916,10 @@ namespace kotte
             ++collision_diagnostics_.exact_tests;
             if(CheckCollisionRecs(proposed_collision_bounds, entity_collision_bounds(*candidate))){
                 ++collision_diagnostics_.contacts;
-                if ((proposed_entity.kind == EntityKind::player && candidate->kind == EntityKind::bomb))
+                if ((candidate->kind == EntityKind::bomb))
                 {
                     const BombState& state = *candidate->bomb_state;
-                    if (state.owner_escape)
+                    if (state.owner_escape && state.owner == moving_entity_handle)
                     {
                         continue;
                     }
