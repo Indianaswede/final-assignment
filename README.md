@@ -8,7 +8,7 @@
 
 - **Controls:** Move with WASD or Arrow keys. Place a bomb with the spacebar. Press Q to quit the game. In a menu, press space to restart the game, and Q if you want to quit.
 - **Objective and rules:** If you run out of health (which you can see as red pips in the top right corner), you die and thus lose. Get 500 points and get to the exit in the bottom right corner of the map to win!
-- **Configurations / demo setup:** Press C to see turn off and on diagnostics.
+- **Configurations / demo setup:** Press C to see turn off and on diagnostics. Press M to switch into the demo mode.
 
 ## Features and validation
 

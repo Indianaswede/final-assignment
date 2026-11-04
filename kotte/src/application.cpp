@@ -73,6 +73,16 @@ namespace kotte
         if(IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_Q)){
             request_exit();
         }
+        if (IsKeyPressed(KEY_M))
+        {
+            if (demo_) {
+                demo_ = false;
+            }
+            else
+            {
+                demo_ = true;
+            }
+        }
         if (IsKeyPressed(KEY_C))
         {
             if (show_diagnostics_) {
@@ -120,6 +130,10 @@ namespace kotte
         // The player and every enemy are movers; each asks its own collision question.
         if (game_state_ == Playing)
         {
+            if (demo_ != demo_initial_)
+            {   
+                reset();
+            }
             update_player(delta_time);
             update_enemies(delta_time);
             queue_bomb_placement();
@@ -710,11 +724,11 @@ namespace kotte
                 20, YELLOW);
         }
 
-        if (player().player_state->score < 500)
+        if (player().player_state->score < min_score_)
         {
-            Vector2 text_size_objective = MeasureTextEx(GetFontDefault(), TextFormat("Get 500 points!"), 20, 3);
+            Vector2 text_size_objective = MeasureTextEx(GetFontDefault(), TextFormat("Get %03i points!", min_score_), 20, 3);
 
-            DrawText(TextFormat("Get 500 points!"),
+            DrawText(TextFormat("Get %03i points!", min_score_),
                 window_.width() - int(text_size_objective.x),
                 window_.height() - int(text_size_objective.y),
                 20, YELLOW);
@@ -989,7 +1003,7 @@ namespace kotte
                 }
                 if ((proposed_entity.kind == EntityKind::player && candidate->kind == EntityKind::exit))
                 {
-                    if (player().player_state->score >= 500  && player().player_state->health > 0)
+                    if (player().player_state->score >= min_score_  && player().player_state->health > 0)
                     {
                         game_state_ = Win;
                     }
@@ -1095,7 +1109,7 @@ namespace kotte
     }
 
     Color Application::exit_color() {
-        if (player().player_state->score >= 500)
+        if (player().player_state->score >= min_score_)
         {
             return exit_color_;
         }
@@ -1132,6 +1146,21 @@ namespace kotte
         }
         apply_entity_destructions(true);
         destroy_entity_requests_.clear();
+        if (demo_ != demo_initial_)
+        {
+            demo_initial_ = demo_;
+            if (demo_)
+            {
+                map_ = make_room(100, 60, random_);
+                min_score_ = demo_min_score_;
+            }
+            else
+            {
+                map_ = make_room(200, 120, random_);
+                min_score_ = full_min_score_;
+            }
+        }
+        
         populate_entities();
         initialize_enemies();
     }

@@ -127,6 +127,8 @@ namespace kotte
         [[nodiscard]] static float entity_roundness(EntityKind kind) noexcept;
         static constexpr int tile_size_ = 40;
         static constexpr int spatial_cell_tiles_ = 8;
+        static constexpr int demo_min_score_ = 100;
+        static constexpr int full_min_score_ = 500;
         static constexpr float spatial_cell_size_ = tile_size_ * spatial_cell_tiles_;
         static constexpr float player_speed_ = 240.0f;
         static constexpr float enemy_speed_ = 80.0f;
@@ -174,5 +176,8 @@ namespace kotte
         State game_state_ = Playing;
         bool player_damaged_by_blast_ = false; //reset back to false
         bool show_diagnostics_ = true;
+        int min_score_ = 500;
+        bool demo_ = false;
+        bool demo_initial_ = false;
     };
 }
